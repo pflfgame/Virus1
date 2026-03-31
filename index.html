@@ -3,12 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Play Virus1!</title>
+	<title>Play 🦠!</title>
 	<link id="cute6361omg" rel="icon" href="data:image/svg+xml,
 		<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
 			<path d='M0 0L100 0L100 100L0 100Z' style='stroke: none; fill: %23ffffff'/>
-			<path d='M50 10A40 40 0 0 0 50 90A40 40 0 0 0 50 10' style='stroke: %23000000; stroke-width: 5px; fill: none'/>
-			<path d='M26 46L50 75L74 46L66 32L34 32ZL42 46L50 75L58 46L74 46M50 32L42 46L58 46Z' style='stroke: %23000000; stroke-width: 2px; fill: %23bfffbf'/>
+			<path d='M20 20L80 80M80 20L20 80' style='stroke: %23000000; stroke-width: 5px; fill: none'/>
 		</svg>
 	">
 	<style>
@@ -45,8 +44,8 @@
 			margin-bottom: 20px;
 		}
 		.lmargin {
-			margin-left: 20px;
-			margin-right: 20px;
+			margin-left: 10px;
+			margin-right: 10px;
 		}
 		.diag {
 			transform: translate(50%,-20.7107%) rotate(45deg);
@@ -87,8 +86,7 @@
 			border: 1.5px solid;
 			outline: none;
 			height: 30px;
-			min-width: 50px;
-			padding: 5px;
+			min-width: 40px;
 			white-space: nowrap;
 		}
 		.dice {
@@ -264,25 +262,10 @@
 		}
 	</style>
 	<script>
-		let currentLevel=parseInt(localStorage.getItem("currentLevel")),totalLevel=10
-		let highscore=JSON.parse(localStorage.getItem("highscore"))
-		if(!currentLevel) currentLevel=0
-		if(!highscore) highscore=new Object()
-		for(let i=0;i<=totalLevel;i++) {
-			if(!highscore["L"+i+"D"]) highscore["L"+i+"D"]=0
-			if(!highscore["L"+i+"DA"]) highscore["L"+i+"DA"]=""
-			if(!highscore["L"+i+"T"]) highscore["L"+i+"T"]=0
-			if(!highscore["L"+i+"TA"]) highscore["L"+i+"TA"]=""
-		}
-		localStorage.setItem("currentLevel", currentLevel)
-		localStorage.setItem("highscore", JSON.stringify(highscore))
 		let ingame=false,mapArray=new Array(),currentMap=new Array(),playerX=1,playerY=6
-		let turn=0,health=100,totalDamage=0,action=""
+		let health=100
 		function delay(time) {
 			return new Promise(resolve => setTimeout(resolve, time))
-		}
-		async function copyToClipboard(text) {
-			await navigator.clipboard.writeText(text)
 		}
 		function betterFloor(num) {
 			return Math.floor(num+1e-10)
@@ -345,8 +328,8 @@
 			newGrid.dataset.x=x
 			newGrid.dataset.y=y
 			newGrid.innerHTML="·"
-			if(text==="You") newGrid.innerHTML="<svg viewBox='0 0 100 100' class='in-svg'><path d='M50 10A40 40 0 0 0 50 90A40 40 0 0 0 50 10'></path><path class='fgreen-path' d='M26 46L50 75L74 46L66 32L34 32ZL42 46L50 75L58 46L74 46M50 32L42 46L58 46Z'></path></svg><span style='display: none'>You</span>"
-			if(text==="Block") newGrid.innerHTML="<svg viewBox='0 0 100 100' class='in-svg'><path d='M20 20L80 80M80 20L20 80'></path></svg><span style='display: none'>Block</span>"
+			if(text==="You") newGrid.innerHTML="<svg viewBox='0 0 100 100' class='in-svg'><path d='M20 20L80 80M80 20L20 80'></path></svg><span style='display: none'>Block</span>"
+			if(text==="Block") newGrid.innerHTML="<svg viewBox='0 0 100 100' class='in-svg'><path d='M50 10A40 40 0 0 0 50 90A40 40 0 0 0 50 10'></path><path class='fgreen-path' d='M26 46L50 75L74 46L66 32L34 32ZL42 46L50 75L58 46L74 46M50 32L42 46L58 46Z'></path></svg><span style='display: none'>You</span>"
 			if(typeof(text)==="number" && text!==0) newGrid.innerHTML="<svg viewBox='0 0 100 100' class='in-svg'><path d='M50 10L90 50L50 90L10 50Z'></path></svg><span class='mid'>"+text+"</span>"
 			return newGrid
 		}
@@ -356,37 +339,36 @@
 		let clicked=false
 		async function clickGrid(button) {
 			let buttonValue=parseInt(button.value),buttonX=parseInt(button.getAttribute("data-x")),buttonY=parseInt(button.getAttribute("data-y"))
-			if(customInput===true && buttonValue!==2) {
-				customInput=false
-				updateCustom()
-			}
 			if(buttonValue===0) {
 				if(clicked===true || ingame===false) return
 				clicked=true
-				if((buttonX-playerX)**2+(buttonY-playerY)**2!==5 || currentMap[buttonX*10+buttonY]==="Block") {
+				if((buttonX-playerX)**2+(buttonY-playerY)**2!==5) {
 					clicked=false
 					return
 				}
 				let moveDirX=[0,1,2,2,1,-1,-2,-2,-1],moveDirY=[0,-2,-1,1,2,2,1,-1,-2]
-				for(let i=1;i<=8;i++) if(playerX+moveDirX[i]===buttonX && playerY+moveDirY[i]===buttonY) action+=i
 				if(currentMap[buttonX*10+buttonY]===0) {
 					currentMap[playerX*10+playerY]=0
 					playerX=buttonX
 					playerY=buttonY
 					currentMap[playerX*10+playerY]="You"
+				} else if(currentMap[buttonX*10+buttonY]==="Block") {
+					currentMap[playerX*10+playerY]=0
+					playerX=buttonX
+					playerY=buttonY
+					currentMap[playerX*10+playerY]="You"
+					health=health%100+1
 				} else if(currentMap[buttonX*10+buttonY]<betterFloor(health/2)) {
-					totalDamage+=currentMap[buttonX*10+buttonY]
 					health+=betterFloor(currentMap[buttonX*10+buttonY]/6)
 					currentMap[buttonX*10+buttonY]=0
 					if(health>100) health=100
 				} else {
-					totalDamage+=betterFloor(health/2)
 					currentMap[buttonX*10+buttonY]-=betterFloor(health/2)
 					health+=betterFloor(health/12)
 					if(health>100) health=100
 				}
 				updateGame()
-				await delay(200)
+				await delay(100)
 				endTurn()
 				clicked=false
 				return
@@ -398,16 +380,9 @@
 					let getX=buttonX+betterFloor(vecArray[i]/100)-10,getY=buttonY+vecArray[i]%100-10
 					if(getX>=1 && getX<=6 && getY>=1 && getY<=6) {
 						gridReplaced++
-						getGrid(1,getX,getY).innerHTML=createGrid(1,getX,getY,gridReplaced).innerHTML
+						getGrid(1,getX,getY).innerHTML=createGrid(1,getX,getY,gridReplaced-6361).innerHTML
 					}
 				}
-				return
-			}
-			if(buttonValue===2) {
-				customInput=true
-				customX=buttonX
-				customY=buttonY
-				updateCustom()
 				return
 			}
 		}
@@ -420,30 +395,23 @@
 		let cogDegree=0
 		function cogRotate() {
 			if(document.getElementById("settings").style.display!=="none") {
-				cogDegree=(cogDegree+1)%360
+				cogDegree=(cogDegree+1)%16
 				document.getElementById("cog").style.transform="rotate("+cogDegree+"deg)"
 			}
 		}
-		let customInput=false,customX=0,customY=0,customMap=new Array()
 		function settings() {
 			let settingsElement=document.getElementById("settings")
 			let helpElement=document.getElementById("help")
 			let svgElement=document.getElementById("helpsvg")
 			helpElement.style.display="none"
 			svgElement.setAttribute("d","M50 10A40 40 0 0 0 50 90A40 40 0 0 0 50 10M38 38A12 12 0 1 1 57.2 47.6A18 18 0 0 0 50 62")
-			if(settingsElement.style.display==="none") {
-				settingsElement.style.display="flex"
-				customInput=false
-			} else {
-				settingsElement.style.display="none"
-			}
+			settingsElement.style.display="flex"
 		}
 		function howToPlay() {
 			let settingsElement=document.getElementById("settings")
 			let helpElement=document.getElementById("help")
 			let svgElement=document.getElementById("helpsvg")
-			settingsElement.style.display="none"
-			customInput=false
+			if(settingsElement.style.display==="flex") return
 			if(helpElement.style.display==="none") {
 				helpElement.style.display="flex"
 				svgElement.setAttribute("d","M50 10A40 40 0 0 0 50 90A40 40 0 0 0 50 10M50 25L50 60")
@@ -453,16 +421,7 @@
 			}
 		}
 		function updateGame() {
-			document.getElementById("welcome").innerHTML="Welcome! You are in Level "+currentLevel+"/"+totalLevel
-			document.getElementById("turn").innerHTML="Turn: "+turn
 			document.getElementById("health").innerHTML="HP: "+health
-			document.getElementById("totaldamage").innerHTML="Total Damage: "+totalDamage
-			document.getElementById("highscore").innerHTML="Highest: "+highscore["L"+currentLevel+"D"]+" Damage / "+highscore["L"+currentLevel+"T"]+" Turn"
-			if(ingame===true) {
-				document.getElementById("restart-btn").setAttribute("class","lmargin lred-bg recbtn forbidden")
-			} else {
-				document.getElementById("restart-btn").setAttribute("class","lmargin lgreen-bg recbtn pointer")
-			}
 			for(let i=1;i<=6;i++) {
 				for(let j=1;j<=6;j++) {
 					getGrid(0,i,j).innerHTML=createGrid(0,i,j,currentMap[10*i+j]).innerHTML
@@ -480,90 +439,31 @@
 				}
 			}
 		}
-		async function importSave() {
-			let getSave=prompt("Import action here:")
-			if(getSave===null) return
-			for(let i=0;i<getSave.length;i++) {
-				if(getSave[i]>="1" && getSave[i]<="8") {
-					tryInput(parseInt(getSave[i]))
-					await delay(500)
-				}
+		function switchLevel(num) {
+			if(document.getElementById("welcome").innerHTML.slice(-1)==="?") {
+				document.getElementById("welcome").innerHTML=document.getElementById("welcome").innerHTML.slice(0,-1)
 			}
-		}
-		async function exportSave() {
-			copyToClipboard(action)
-			document.getElementById("export-btn").innerHTML="Exported!"
-			await delay(300)
-			document.getElementById("export-btn").innerHTML="Export action"
-		}
-		function updateCustom() {
+			document.getElementById("welcome").innerHTML+=num%10
 			for(let i=1;i<=6;i++) {
-				for(let j=1;j<=6;j++) {
-					getGrid(2,i,j).innerHTML=createGrid(2,i,j,customMap[10*i+j]).innerHTML
-					if(customInput===true && i===customX && j===customY) {
-						getGrid(2,i,j).setAttribute("class","llyellow-bg grid")
+				for(let j=1;j<=6;j++) if(mapArray[100*num+10*i+j]!==0) {
+					if(mapArray[100*num+10*i+j]==="Block") {
+						if(currentMap[10*i+j]!=="You") currentMap[10*i+j]="Block"
 					} else {
-						getGrid(2,i,j).setAttribute("class","grid")
+						if(currentMap[10*i+j]==="You") {
+							health-=(mapArray[100*num+10*i+j]+10)
+							if(health<0) {
+								location.reload()
+								return
+							}
+						} else if(currentMap[10*i+j]==="Block") {
+							currentMap[10*i+j]=mapArray[100*num+10*i+j]
+						} else {
+							currentMap[10*i+j]+=mapArray[100*num+10*i+j]
+						}
 					}
 				}
 			}
-		}
-		function importMap() {
-			let getSave=prompt("Import map here:")
-			if(getSave===null) return
-			customMap=JSON.parse(getSave)
-			updateCustom()
-		}
-		async function exportMap() {
-			copyToClipboard(JSON.stringify(customMap))
-			document.getElementById("exportmap").innerHTML="Exported!"
-			await delay(300)
-			document.getElementById("exportmap").innerHTML="Export map"
-		}
-		function newMap() {
-			customInput=false
-			for(let i=1;i<=6;i++) {
-				for(let j=1;j<=6;j++) customMap[10*i+j]=0
-			}
-			customMap[16]="You"
-			updateCustom()
-		}
-		function playMap() {
-			customInput=false
-			updateCustom()
-			currentLevel=0
-			newGame()
-			for(let i=1;i<=6;i++) {
-				for(let j=1;j<=6;j++) currentMap[10*i+j]=customMap[10*i+j]
-			}
 			updateGame()
-		}
-		function newGame() {
-			ingame=true
-			playerX=1
-			playerY=6
-			turn=1
-			health=100
-			totalDamage=0
-			action=""
-			for(let i=1;i<=6;i++) {
-				for(let j=1;j<=6;j++) {
-					currentMap[10*i+j]=mapArray[100*currentLevel+10*i+j]
-				}
-			}
-			updateGame()
-		}
-		function switchLevel(num) {
-			if(num==-1 && currentLevel>0) {
-				currentLevel--
-				localStorage.setItem("currentLevel",currentLevel)
-				newGame()
-			}
-			if(num==1 && currentLevel<totalLevel) {
-				currentLevel++
-				localStorage.setItem("currentLevel",currentLevel)
-				newGame()
-			}
 		}
 		function compareVectorCloser(x1,y1,x2,y2) {
 			if(x1**2+y1**2<x2**2+y2**2) return true
@@ -617,16 +517,15 @@
 					if(moveNewX>=1 && moveNewX<=6 && moveNewY>=1 && moveNewY<=6 && currentMap[10*moveNewX+moveNewY]!=="Block") {
 						if(typeof(currentMap[10*moveNewX+moveNewY])==="number") {
 							currentMap[10*moveNewX+moveNewY]+=moveVirus
-						} else if(moveVirus>10) {
-							health-=(moveVirus-10)
+						} else if(moveVirus>0) {
+							health-=(moveVirus+10)
 						}
 					}
 				}
-				currentMap[10*nearestX+nearestY]=0
+				currentMap[10*nearestX+nearestY]=moveVirus
 			}
 			if(health<=0) {
-				ingame=false
-				updateGame()
+				location.reload()
 				return
 			}
 			let foundVirus=false
@@ -635,80 +534,15 @@
 					if(typeof(currentMap[10*i+j])==="number" && currentMap[10*i+j]>0) foundVirus=true
 				}
 			}
-			if(!foundVirus) {
-				if(currentLevel>0 && highscore["L"+currentLevel+"D"]<totalDamage) {
-					highscore["L"+currentLevel+"D"]=totalDamage
-					highscore["L"+currentLevel+"DA"]=action
-					localStorage.setItem("highscore", JSON.stringify(highscore))
-				}
-				if(currentLevel>0 && (highscore["L"+currentLevel+"T"]>turn || highscore["L"+currentLevel+"T"]===0)) {
-					highscore["L"+currentLevel+"T"]=turn
-					highscore["L"+currentLevel+"TA"]=action
-					localStorage.setItem("highscore", JSON.stringify(highscore))
-				}
-			}
-			turn++
 			updateGame()
 		}
 		function tryInput(num) {
-			if(num>=100) {
-				if(customX===1 && customY===6) return
-				if(num===110) {
-					customMap[10*customX+customY]=0
-				} else if(num===100 && customMap[10*customX+customY]===0) {
-					customMap[10*customX+customY]="Block"
-				} else if(customMap[10*customX+customY]!=="Block") {
-					customMap[10*customX+customY]=customMap[10*customX+customY]*10+(num-100)
-				}
-				updateCustom()
-				return
-			}
 			if(ingame===false) return
 			let moveDirX=[0,1,2,2,1,-1,-2,-2,-1],moveDirY=[0,-2,-1,1,2,2,1,-1,-2]
 			if(playerX+moveDirX[num]<1 || playerX+moveDirX[num]>6 || playerY+moveDirY[num]<1 || playerY+moveDirY[num]>6) return
 			clickGrid(getGrid(0,playerX+moveDirX[num],playerY+moveDirY[num]))
 		}
 		document.addEventListener("keydown", function(pressed) {
-			if(customInput===true) {
-				switch(pressed.key) {
-					case "0":
-					tryInput(100)
-					break
-					case "1":
-					tryInput(101)
-					break
-					case "2":
-					tryInput(102)
-					break
-					case "3":
-					tryInput(103)
-					break
-					case "4":
-					tryInput(104)
-					break
-					case "5":
-					tryInput(105)
-					break
-					case "6":
-					tryInput(106)
-					break
-					case "7":
-					tryInput(107)
-					break
-					case "8":
-					tryInput(108)
-					break
-					case "9":
-					tryInput(109)
-					break
-					case "c":
-					case "C":
-					case "Backspace":
-					tryInput(110)
-					break
-				}
-				return
-			}
 			switch(pressed.key) {
 				case "1":
 				tryInput(1)
@@ -734,18 +568,13 @@
 				case "8":
 				tryInput(8)
 				break
-				case "r":
-				case "R":
-				newGame()
-				break
 			}
 		} )
 		function setMap() {
-			for(let i=0;i<=totalLevel;i++) {
+			for(let i=0;i<=10;i++) {
 				for(let j=1;j<=6;j++) {
 					for(let k=1;k<=6;k++) mapArray[100*i+10*j+k]=0
 				}
-				mapArray[100*i+16]="You"
 			}
 			mapArray[161]=500
 			mapArray[151]="Block"
@@ -780,7 +609,7 @@
 			mapArray[422]="Block"
 			mapArray[431]="Block"
 			mapArray[433]="Block"
-			mapArray[534]=500
+			mapArray[534]=400
 			mapArray[554]=500
 			mapArray[512]="Block"
 			mapArray[522]="Block"
@@ -812,14 +641,14 @@
 			mapArray[753]="Block"
 			mapArray[763]="Block"
 			mapArray[764]="Block"
-			mapArray[813]=314
-			mapArray[824]=432
-			mapArray[831]=132
-			mapArray[835]=614
-			mapArray[842]=651
-			mapArray[846]=125
-			mapArray[853]=456
-			mapArray[864]=533
+			mapArray[813]=156
+			mapArray[824]=25
+			mapArray[831]=262
+			mapArray[835]=46
+			mapArray[842]=144
+			mapArray[846]=656
+			mapArray[853]=531
+			mapArray[864]=441
 			mapArray[812]="Block"
 			mapArray[823]="Block"
 			mapArray[845]="Block"
@@ -829,7 +658,7 @@
 			mapArray[915]=512
 			mapArray[922]=625
 			mapArray[926]=512
-			mapArray[942]=1024
+			mapArray[942]=102
 			mapArray[955]=625
 			for(let i=1;i<=6;i++) {
 				for(let j=1;j<=6;j++) {
@@ -857,23 +686,23 @@
 			for(let i=1;i<=6;i++) {
 				for(let j=1;j<=6;j++) {
 					if(i===6 && j===1) {
-						document.getElementById("mapeditor").appendChild(createGrid(2,j,i,"You"))
-					} else {
-						document.getElementById("mapeditor").appendChild(createGrid(2,j,i,""))
-					}
-				}
-			}
-			newMap()
-			for(let i=1;i<=6;i++) {
-				for(let j=1;j<=6;j++) {
-					if(i===6 && j===1) {
 						document.getElementById("map-container").appendChild(createGrid(0,j,i,"You"))
 					} else {
 						document.getElementById("map-container").appendChild(createGrid(0,j,i,""))
 					}
 				}
 			}
-			newGame()
+			ingame=true
+			playerX=1
+			playerY=6
+			health=100
+			for(let i=1;i<=6;i++) {
+				for(let j=1;j<=6;j++) {
+					currentMap[10*i+j]=0
+				}
+			}
+			currentMap[16]="You"
+			updateGame()
 			document.querySelectorAll("button").forEach(btn => {
 				btn.addEventListener("click", this.blur())
 				btn.addEventListener("keydown", pressed => {
@@ -885,7 +714,7 @@
 </head>
 <body>
 	<div class="cmargin text2-c">
-		<span id="welcome"></span>
+		<span id="welcome">Welcome! You are in Level ?</span>
 	</div>
 	<div class="tl">
 		<button type="button" onclick="settings()" class="sqrbtn" title="Settings">
@@ -906,54 +735,35 @@
 		</button>
 	</div>
 	<div id="settings" class="mid grey-bg box" style="display: none; height: 50%; width: 50%;">
-		<h2>Settings</h2>
+		<h2>Settings is broken</h2>
 		<span class="nowrap">🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲</span>
-		<br>
-		<div>
-			<button type="button" onclick="importMap()" class="lmargin grey-bg recbtn pointer">Import map</button>
-			<button type="button" id="exportmap" onclick="exportMap()" class="lmargin grey-bg recbtn pointer">Export map</button>
-			<button type="button" onclick="newMap()" class="lmargin grey-bg recbtn pointer">New map</button>
-			<button type="button" onclick="playMap()" class="lmargin grey-bg recbtn pointer">Play custom map!</button>
-		</div>
-		<br>
-		<div class="text2-c">
-			<div id="mapeditor" class="square36">
-			</div>
-		</div>
-		<br>
-		<span class="nowrap">🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲</span>
-		<br>
-		<span class="nowrap">Select a grid, number key for virus, "0" for block, "C" or backspace for clear.</span>
-		<br>
-		<span class="nowrap">Custom map is displayed in level 0 after you click the play button.</span>
-		<br>
 	</div>
 	<div id="help" class="mid llpurple-bg box" style="display: none; height: 50%; width: 50%;">
-		<h2>How to Play Virus1</h2>
+		<h2>How to Play 🦠</h2>
 		<span class="nowrap">🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲</span>
 		<br>
-		<span>There is a 6x6 square with some virus on it. You start at bottom left and 100 health (HP).</span>
+		<span>There is a 6x6 square with some 🦠 on it. You start at bottom left and 100 health (HP).</span>
 		<br>
-		<span>At the beginning of each turn, you move to a grid that is sqrt(5) away. If the grid contains a virus, you will deal damage equals to HP/2, then receive a healing of Damage/6, both rounded down.</span>
+		<span>At the beginning of each turn, you move to a grid that is sqrt(5) away. If the grid contains a 🦠, you will deal damage equals to HP/2, then receive a healing of Damage/6, both rounded down.</span>
 		<br>
-		<span>After your action, the nearest virus will split into adjacent cells, and the original one will die. Virus in the same grid will merge after that.</span>
+		<span>After your action, the nearest 🦠 will split into adjacent cells, and the original one will NOT die. 🦠 in the same grid will merge after that.</span>
 		<br>
-		<span>(For example, a virus in the corner with 120 amount will split into 2 adjacent cells with 40 amount, then it will die)</span>
+		<span>(For example, a 🦠 in the corner with 120 amount will split into 2 adjacent cells with 40 amount, then it is still alive because why not)</span>
 		<br>
-		<span>If a virus is in your grid, you will receive damage equals to its amount. Your defense is 10. When your HP is not positive or all viruses are cleared, the game ends.</span>
+		<span>If a 🦠 is in your grid, you will receive damage equals to its amount. Your defense is NEGATIVE 10. When your HP is not positive or all 🦠🦠 are cleared, the game ends.</span>
 		<br>
 		<span class="nowrap">🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲</span>
 		<h3>Details</h3>
-		<span>↓↓The virus with smaller number is closer to you. (Clickable)↓↓</span>
+		<span>↓↓The 🦠 with smaller number is closer to you. (Clickable)↓↓</span>
 		<br>
 		<div class="text2-c">
 			<div id="detailmechanic" class="square36">
 			</div>
 		</div>
 		<br>
-		<span>Control: Click or input "1"~"8" to move, Click button or input "R" to restart level.</span>
+		<span>Control: Click or input "1"~"8" to move.</span>
 		<br>
-		<span>Try to defeat the game with (higher total damage / less turn) ! Custom map is available in settings.</span>
+		<span>Try to defeat the game with (higher total damage / less turn) is unnecessary! Custom map is NOT available in settings.</span>
 		<br>
 		<span class="nowrap">🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲🎲</span>
 		<br>
@@ -961,26 +771,29 @@
 		<br>
 		<span>QQ: 807581283</span>
 		<br>
-		<span>Last update: 2025/7/11, fixed custom map bugs</span>
+		<span>Last update: It is too BAD.</span>
 		<br>
 	</div>
 	<div class="cmargin text3-c">
-		<button type="button" onclick="switchLevel(-1)" class="lmargin lcyan-bg recbtn pointer">Previous Level</button>
-		<button type="button" onclick="importSave()" class="lmargin lblue-bg recbtn pointer">Import action</button>
-		<button type="button" id="restart-btn" onclick="newGame()" class="lmargin lred-bg recbtn forbidden">Restart</button>
-		<button type="button" id="export-btn" onclick="exportSave()" class="lmargin lyellow-bg recbtn pointer">Export action</button>
-		<button type="button" onclick="switchLevel(1)" class="lmargin lcyan-bg recbtn">Next Level</button>
+		<button type="button" onclick="switchLevel(1)" class="lmargin lcyan-bg recbtn pointer">1</button>
+		<button type="button" onclick="switchLevel(2)" class="lmargin lcyan-bg recbtn pointer">2</button>
+		<button type="button" onclick="switchLevel(3)" class="lmargin lcyan-bg recbtn pointer">3</button>
+		<button type="button" onclick="switchLevel(4)" class="lmargin lcyan-bg recbtn pointer">4</button>
+		<button type="button" onclick="switchLevel(5)" class="lmargin lcyan-bg recbtn pointer">5-</button>
+		<br>
+		<button type="button" onclick="switchLevel(6)" class="lmargin lcyan-bg recbtn pointer">6</button>
+		<button type="button" onclick="switchLevel(7)" class="lmargin lcyan-bg recbtn pointer">7</button>
+		<button type="button" onclick="switchLevel(8)" class="lmargin lcyan-bg recbtn pointer">8-</button>
+		<button type="button" onclick="switchLevel(9)" class="lmargin lcyan-bg recbtn pointer">9-</button>
+		<button type="button" onclick="switchLevel(10)" class="lmargin lcyan-bg recbtn pointer">10</button>
 	</div>
 	<div class="cmargin text2-c">
 		<br>
-		<span id="turn" class="lmargin lblue"></span>
-		<span id="health" class="lmargin lgreen"></span>
-		<span id="totaldamage" class="lmargin lred"></span>
+		<span id="health" class="lgreen"></span>
 	</div>
 	<div id="map-container" class="mid square36">
 	</div>
 	<div class="bottom text3-c">
-		<span id="highscore"></span>
 	</div>
 </body>
 </html>
